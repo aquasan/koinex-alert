@@ -10,6 +10,7 @@ import(
     "strconv"
     "log"
     "flag"
+    "runtime"
 )
 
 
@@ -31,15 +32,19 @@ type Response struct {
 }
 
 func notify( message string) {
-  cmd := exec.Command("notify-send", "-u", "critical",
-                    "-i", "notification-message-im", message)
-  cmd.Run()
+  if runtime.GOOS == "darwin" {
+      cmd := exec.Command("terminal-notifier", "-message", message)
+      cmd.Run()
+  } else {
+      cmd := exec.Command("notify-send", "-u", "critical",
+            "-i", "notification-message-im", message)
+      cmd.Run()
+  }
 }
 
 func main() {
   min := flag.Float64("min", 45.0, "Lower threshold")
   max := flag.Float64("max", 100.0, "Upper threshold")
-
   flag.Parse()
   previous := 0.0;
   for {
